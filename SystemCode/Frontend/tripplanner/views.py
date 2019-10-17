@@ -11,7 +11,8 @@ FformInput = {}
 
 # Create your views here.
 def landing(request):
-	return render(request,'home.html',{'title' : "SG Travel Planner"} )
+	# return render(request,'home.html',{'title' : "SG Travel Planner"} )
+	return render(request, 'home.html', {'title': "SG Travel Planner"})
 
 def new(request):
 	global BformInput
@@ -49,15 +50,16 @@ def NFlexyTravel(request):
 		NonFlex = NonFlexTravel(request.POST)
 		if NonFlex.is_valid():
 			FformInput = NonFlex.clean()
+			Days = FformInput['Departure_Date'] - FformInput['Arrival_Date']
 
 			resp = POSTData (	BformInput['Your_Name'],
 						BformInput['Your_Email'] , 
-						FformInput['Hotel_Postal'],
+						FformInput['Hotel_Name'],
 						FformInput['Arrival_Date'].strftime('%Y-%m-%d') ,
 						FformInput['Departure_Date'].strftime('%Y-%m-%d') ,
 						True, 
 						BformInput["How_Are_You_Travelling"], 
-						'', 
+						Days.days,
 						FformInput["Max_Hours_Per_Day"],
 						"LongMeal", 
 						BformInput['Interest'] )
@@ -65,7 +67,6 @@ def NFlexyTravel(request):
 			caseid = resp[0]["id"]
 			print (caseid)
 			response = redirect('/travelPlans/'+str(caseid)+'/recommendations')
-			#req = {}
 			return response
 
 
@@ -100,12 +101,12 @@ def FlexyTravel(request):
 			FformInput = Flex.clean()
 			resp = POSTData (	BformInput['Your_Name'],
 						BformInput['Your_Email'] , 
-						FformInput['Hotel_Postal'],
+						FformInput['Hotel_Name'],
 						'' ,
 						'' ,
 						True, 
 						BformInput["How_Are_You_Travelling"], 
-						FformInput["Travel_Duration"], 
+						FformInput["No_of_Travel_Days"], 
 						FformInput["Max_Hours_Per_Day"],
 						"LongMeal", 
 						BformInput['Interest'] )
@@ -114,7 +115,6 @@ def FlexyTravel(request):
 			caseid = resp[0]["id"]
 			print (caseid)
 			response = redirect('/travelPlans/'+str(caseid)+'/recommendations')
-			#req = {}
 			return response
 
 
@@ -149,11 +149,11 @@ def POSTData(name, email, hotelLocation, travelDate, travelEndDate, flexibleTime
 										"categories"		: categories
 										}
 			}
-	
+	print (data)
 	resp = requests.post(TRIPPINGO_URL+"travelPlans",json=data)
-	#print (resp.text)
 	BformInput = {}
 	FformInput = {}
+
 
 
 	return  resp.json(),
